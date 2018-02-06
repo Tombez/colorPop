@@ -1,9 +1,7 @@
 // Mr. JPrograms is the creator of this idea. See: https://www.khanacademy.org/computer-programming/color-pop/6416482056208384
 
 const s = 1; // node width and height
-const clrOff = 20; // 0 to 255, how much the color can change between nodes
-
-const dirs = [[-1, 0], [0, -1], [1, 0], [0, 1]];
+const clrOff = 0.05; // 0 to 1, how much the color can change between nodes
 
 const Node = (x, y, r, g, b) => {
     return {
@@ -11,18 +9,23 @@ const Node = (x, y, r, g, b) => {
         y: y,
         r: r,
         g: g,
-        b: b
+        b: b,
+        prev: null,
+        next: null
     };
 };
 const rand = max => Math.random() * max | 0;
 const constrain = (v, min, max) => (v < min ? min : (v > max ? max : v));
-const adjustColor = cc => constrain(cc + rand(clrOff * 2 + 1) - clrOff, 0, 255);
+const srgbToLinear = c => c > .04045 ? Math.pow((c + 0.055) / (1 + 0.055), 2.4) : c / 12.92;
+const linearToSrgb = c => c > .0031308 ? (1 + 0.055) * Math.pow(c, 1 / 2.4) - 0.055 : 12.92 * c;
+const adjustColor = cc => constrain(Math.round(linearToSrgb(srgbToLinear(cc / 255) + Math.random() * clrOff * 2 - clrOff) * 255), 0, 255);
+const coord = x => (x == 0) * -1 + (x == 2) * 1;
 const setNode = a => {
     ctx.fillStyle = `rgb(${a.r = adjustColor(a.r)}, ${a.g = adjustColor(a.g)}, ${a.b = adjustColor(a.b)})`;
     ctx.fillRect(a.x * s, a.y * s, s, s);
-    for (const [x, y] of dirs) {
-        const px = a.x + x;
-        const py = a.y + y;
+    for (let n = 0; n < 4; n++) {
+        const px = a.x + coord(n);
+        const py = a.y + coord(n + 3 & 3);
         if (px >= 0 && px < cols && py >= 0 && py < rows) {
             const index = px + py * cols;
             const byte = index >> 3;
@@ -36,11 +39,11 @@ const setNode = a => {
 };
 const loop = () => {
     nodeProg += list.length / (2 * Math.PI);
-    while (nodeProg > 1 && list.length) {
+    while (nodeProg > 1 && list.length > 0) {
         nodeProg--;
-        setNode(list.splice(rand(list.length), 1)[0]);
+        setNode(list.remove(list.get(rand(list.length))));
     }
-    requestAnimationFrame(loop);
+    list.length && requestAnimationFrame(loop);
 };
 const init = () => {
     canvas = document.getElementById("canvas");
@@ -48,8 +51,7 @@ const init = () => {
     rows = (canvas.height = innerHeight) / s | 0;
     ctx = canvas.getContext("2d");
     filled = new Uint8Array(Math.ceil(cols * rows / 8));
-    const first = Node(rand(cols), rand(rows), rand(256), rand(256), rand(256));
-    setNode(first);
+    setNode(Node(rand(cols), rand(rows), rand(256), rand(256), rand(256)));
     loop();
 };
 
@@ -58,7 +60,7 @@ let cols;
 let rows;
 let ctx;
 let filled;
-let list = [];
+let list = new DoublyLinkedList();
 let nodeProg = 0;
 
 document.addEventListener("DOMContentLoaded", init);
