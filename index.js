@@ -12,20 +12,20 @@ const adjustColor = cc => constrain(Math.round(linearToSrgb(srgbToLinear(cc / 25
 const coord = x => (x & 1) * (x - 2);
 const addNode = (x, y, r, g, b) => {
 	const a = list.add();
-	list[a] = x >> 8;
-	list[a + 1] = x & 255;
-	list[a + 2] = y >> 8;
-	list[a + 3] = y & 255;
-	list[a + 4] = r;
-	list[a + 5] = g;
-	list[a + 6] = b;
+	list.structs[a] = x >> 8;
+	list.structs[a + 1] = x & 255;
+	list.structs[a + 2] = y >> 8;
+	list.structs[a + 3] = y & 255;
+	list.structs[a + 4] = r;
+	list.structs[a + 5] = g;
+	list.structs[a + 6] = b;
 };
 const setNode = a => {
-	const x = list[a] << 8 | list[a + 1];
-	const y = list[a + 2] << 8 | list[a + 3];
-	const nr = adjustColor(list[a + 4]);
-	const ng = adjustColor(list[a + 5]);
-	const nb = adjustColor(list[a + 6]);
+	const x = list.structs[a] << 8 | list.structs[a + 1];
+	const y = list.structs[a + 2] << 8 | list.structs[a + 3];
+	const nr = adjustColor(list.structs[a + 4]);
+	const ng = adjustColor(list.structs[a + 5]);
+	const nb = adjustColor(list.structs[a + 6]);
 	ctx.fillStyle = `rgb(${nr}, ${ng}, ${nb})`;
 	ctx.fillRect(x * s, y * s, s, s);
 	for (let n = 0; n < 4; n++) {
@@ -69,6 +69,10 @@ const init = () => {
 	const y = rand(rows);
 	addNode(x, y, rand(256), rand(256), rand(256));
 	setNode(0);
+	/*const index = x + y * cols;
+	const byte = index >> 3;
+	const bit = 1 << (index & 7);
+	filled[byte] |= bit;*/
 	prev = performance.now();
 	requestAnimationFrame(loop);
 };
