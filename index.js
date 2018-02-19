@@ -38,13 +38,14 @@ const setNode = a => {
 		}
 	}
 };
-const loop = () => {
-	nodeProg += list.length / (2 * Math.PI);
+const loop = now => {
+	nodeProg += list.length / (2 * Math.PI) * ((now - prev) / (1e3 / 60));
+	prev = now;
 	while (nodeProg > 1 && list.length > 0) {
 		nodeProg--;
 		setNode(list.remove(list.get(rand(list.length))));
 	}
-	list.length && requestAnimationFrame(loop);
+	if (list.length) requestAnimationFrame(loop);
 };
 const init = () => {
 	canvas = document.getElementById("canvas");
@@ -53,7 +54,8 @@ const init = () => {
 	ctx = canvas.getContext("2d");
 	filled = new Uint8Array(Math.ceil(cols * rows / 8));
 	setNode(Node(rand(cols), rand(rows), rand(256), rand(256), rand(256)));
-	loop();
+	prev = performance.now();
+	requestAnimationFrame(loop);
 };
 
 let canvas;
@@ -63,5 +65,6 @@ let ctx;
 let filled;
 let list = new DoublyLinkedList();
 let nodeProg = 0;
+let prev;
 
 document.addEventListener("DOMContentLoaded", init);
