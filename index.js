@@ -20,7 +20,7 @@ const constrain = (v, min, max) => (v < min ? min : (v > max ? max : v));
 const srgbToLinear = c => c > .04045 ? Math.pow((c + 0.055) / (1 + 0.055), 2.4) : c / 12.92;
 const linearToSrgb = c => c > .0031308 ? (1 + 0.055) * Math.pow(c, 1 / 2.4) - 0.055 : 12.92 * c;
 const adjustColor = cc => constrain(Math.round(linearToSrgb(srgbToLinear(cc / 255) + Math.random() * clrOff * 2 - clrOff) * 255), 0, 255);
-const coord = x => (x == 0) * -1 + (x == 2) * 1;
+const coord = x => (x & 1) * (x - 2);
 const setNode = a => {
 	ctx.fillStyle = `rgb(${a.r = adjustColor(a.r)}, ${a.g = adjustColor(a.g)}, ${a.b = adjustColor(a.b)})`;
 	ctx.fillRect(a.x * s, a.y * s, s, s);
