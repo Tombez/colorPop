@@ -1,3 +1,5 @@
+"use strict";
+
 class DoublyLinkedList {
 	constructor() {
 		this.length = 0;

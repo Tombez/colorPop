@@ -1,4 +1,5 @@
 // Mr. JPrograms is the creator of this idea. See: https://www.khanacademy.org/computer-programming/color-pop/6416482056208384
+"use strict";
 
 const s = 1; // node width and height
 const clrOff = 0.05; // 0 to 1, how much the color can change between nodes
