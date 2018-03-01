@@ -12,7 +12,7 @@ let cols;
 let rows;
 let ctx;
 let filled;
-let list = new StructList(7);
+let list = new StructPool(7);
 let nodeProg = 0;
 let mouseDown = false;
 
