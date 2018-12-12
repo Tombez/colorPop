@@ -4,6 +4,12 @@ const s = 1; // node width and height
 const clrOff = 0.05; // 0 to 1, how much the color can change between nodes
 
 Math.tau = 2 * Math.PI;
+Array.prototype.alter = function(cb) {
+	for (let i = 0; i < this.length; ++i) {
+		this[i] = cb(this[i], i);
+	}
+	return this;
+};
 
 let canvas;
 let cols;
@@ -30,10 +36,15 @@ const linearToSrgb = c => {
 		return 12.92 * c;
 	}
 }
-const adjustColor = cc => {
-	const variance = Math.random() * clrOff * 2 - clrOff;
-	const newC = linearToSrgb(srgbToLinear(cc / 255) + variance);
-	return clamp(Math.round(newC * 255), 0, 255);
+const adjustColor = (col) => {
+	const a = Math.random() * Math.tau; // red-green angle
+	const b = Math.random() * Math.PI; // blue angle
+	const off = Math.random() * clrOff;
+	col.alter(cc => srgbToLinear(cc / 255));
+	col[0] += Math.cos(a) * off;
+	col[1] += Math.sin(a) * off;
+	col[2] += Math.cos(b) * off;
+	return col.alter(cc => clamp(Math.round(linearToSrgb(cc) * 255), 0, 255));
 };
 const addNode = (x, y, r, g, b) => {
 	if (x < 0 || x >= cols || y < 0 || y >= rows) return;
@@ -54,10 +65,11 @@ const addNode = (x, y, r, g, b) => {
 const fillNode = a => {
 	const x = list.data[a] << 8 | list.data[a + 1];
 	const y = list.data[a + 2] << 8 | list.data[a + 3];
-	const nr = adjustColor(list.data[a + 4]);
-	const ng = adjustColor(list.data[a + 5]);
-	const nb = adjustColor(list.data[a + 6]);
-	ctx.fillStyle = "rgb(" + nr + "," + ng + "," + nb + ")";
+	const r = list.data[a + 4];
+	const g = list.data[a + 5];
+	const b = list.data[a + 6]
+	const [nr, ng, nb] = adjustColor([r, g, b]);
+	ctx.fillStyle = `rgb(${nr}, ${ng}, ${nb})`;
 	ctx.fillRect(x * s, y * s, s, s);
 	addNode(x, y - 1, nr, ng, nb);
 	addNode(x + 1, y, nr, ng, nb);
