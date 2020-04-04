@@ -38,12 +38,13 @@ const linearToSrgb = c => {
 }
 const adjustColor = (col) => {
 	const a = Math.random() * Math.tau; // red-green angle
-	const b = Math.random() * Math.PI; // blue angle
+	const b = (Math.random() - 0.5) * Math.PI; // blue angle
 	const off = Math.random() * clrOff;
 	col.alter(cc => srgbToLinear(cc / 255));
-	col[0] += Math.cos(a) * off;
-	col[1] += Math.sin(a) * off;
-	col[2] += Math.cos(b) * off;
+	const rgScale = Math.cos(b) * off;
+	col[0] += Math.cos(a) * rgScale;
+	col[1] += Math.sin(a) * rgScale;
+	col[2] += Math.sin(b) * off;
 	return col.alter(cc => clamp(Math.round(linearToSrgb(cc) * 255), 0, 255));
 };
 const addNode = (x, y, r, g, b) => {
