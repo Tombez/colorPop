@@ -3,11 +3,10 @@
 const s = 1; // node width and height
 const clrOff = 0.05; // 0 to 1, how much the color can change between nodes
 
-Math.tau = 2 * Math.PI;
+Math.TAU = 2 * Math.PI;
 Array.prototype.alter = function(cb) {
-	for (let i = 0; i < this.length; ++i) {
+	for (let i = 0; i < this.length; ++i)
 		this[i] = cb(this[i], i);
-	}
 	return this;
 };
 
@@ -23,21 +22,17 @@ let mouseDown = false;
 const rand = max => Math.random() * max | 0;
 const clamp = (v, min, max) => v < min ? min : (v > max ? max : v);
 const srgbToLinear = c => {
-	if (c > .04045) {
-		return Math.pow((c + 0.055) / (1 + 0.055), 2.4);
-	} else {
-		return c / 12.92;
-	}
-}
+	if (c > 0.04045)
+		return Math.pow((c + 0.055) / 1.055, 2.4);
+	return c / 12.92;
+};
 const linearToSrgb = c => {
-	if (c > .0031308) {
-		return (1 + 0.055) * Math.pow(c, 1 / 2.4) - 0.055;
-	} else {
-		return 12.92 * c;
-	}
-}
+	if (c > 0.0031308)
+		return 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+	return 12.92 * c;
+};
 const adjustColor = (col) => {
-	const a = Math.random() * Math.tau; // red-green angle
+	const a = Math.random() * Math.TAU; // red-green angle
 	const b = (Math.random() - 0.5) * Math.PI; // blue angle
 	const off = Math.random() * clrOff;
 	col.alter(cc => srgbToLinear(cc / 255));
@@ -80,7 +75,7 @@ const fillNode = a => {
 };
 const loop = () => {
 	if (list.length) {
-		nodeProg += list.length / Math.tau * 2;
+		nodeProg += list.length / Math.TAU * 2;
 		for (; nodeProg > 1 && list.length > 0; nodeProg--) {
 			fillNode((Math.random() * list.length | 0) * list.unit);
 		}
